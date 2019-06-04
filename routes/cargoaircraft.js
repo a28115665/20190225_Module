@@ -109,6 +109,18 @@ var GetCargoAircraftTime = function (){
 									})
 						        });
 
+								_post_req.on('error', function(e) {
+									// console.log(`${e}`);
+								});
+								_post_req.on('timeout', function(e) {
+									console.log(`timeout:${e}`);
+								    _post_req.abort();
+								});
+								_post_req.on('uncaughtException', function(e) {
+									console.log(`uncaughtException:${e}`);
+								    _post_req.abort();
+								});
+
 						        _post_req.end();
 						        
 								_conditions = [];
@@ -140,6 +152,18 @@ var GetCargoAircraftTime = function (){
 				            	// console.log(JSON.parse(content));
 							})
 				        });
+
+						_post_req.on('error', function(e) {
+							// console.log(`${e}`);
+						});
+						_post_req.on('timeout', function(e) {
+							console.log(`timeout:${e}`);
+						    _post_req.abort();
+						});
+						_post_req.on('uncaughtException', function(e) {
+							console.log(`uncaughtException:${e}`);
+						    _post_req.abort();
+						});
 
 				        _post_req.end();
 	            	}

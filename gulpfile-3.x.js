@@ -51,36 +51,27 @@ var destinations = {
     'public': 'public'
 };
 
-let build = () => {
+
+gulp.task('build', function(){
     return es.merge(gulp.src(source.js.src) , getTemplateStream())
-        .pipe(ngAnnotate())
-        .pipe(uglify())
+         .pipe(ngAnnotate())
+         .pipe(uglify())
         .pipe(concat('app.js'))
         .pipe(gulp.dest(destinations.js));
-}
-gulp.task(build);
+});
 
-let js = () => {
+gulp.task('js', function(){
     return es.merge(gulp.src(source.js.src) , getTemplateStream())
         .pipe(concat('app.js'))
         .pipe(gulp.dest(destinations.js));
-}
-gulp.task(js);
+});
 
-let moveJsFile = () => {
+gulp.task('m-js', ['js'], function(){
     return gulp.src(destinations.js + '/*.js')
         .pipe(gulp.dest(destinations['public'] + '/' + destinations.js));
-}
-// gulp.task('mJs', gulp.series(
-//     js, 
-//     moveJsFile
-// ));
-// gulp.task('mJs', ['js'], function(){
-//     return gulp.src(destinations.js + '/*.js')
-//         .pipe(gulp.dest(destinations['public'] + '/' + destinations.js));
-// });
+});
 
-let mHtml = () => {
+gulp.task('m-html', function(){
     gulp.src([
         'app/**/' + source.js.html,
         'app/' + source.js.tpl
@@ -89,30 +80,27 @@ let mHtml = () => {
     return gulp.src([
                 source.js.html
             ])
-            .pipe(gulp.dest(destinations['public']));
-}
-gulp.task(mHtml);
+        .pipe(gulp.dest(destinations['public']));
+});
 
-let clean = (cb) => {
+gulp.task('clean', function(cb) {
     // You can use multiple globbing patterns as you would with `gulp.src`
     return del(['public'], cb);
-}
-gulp.task(clean);
+});
 
-
-let runVersion = () => {
- 
-    return gulp.src([ './version.json' ])
-        .pipe(jsonModify({
-            key: 'version',
-            value: new Date().getTime()
-        }))
-        .pipe(gulp.dest('./'))
-}
 // version data in multiple files 
-gulp.task(runVersion);
+gulp.task('version', function () {
+ 
+  return gulp.src([ './version.json' ])
+    .pipe(jsonModify({
+        key: 'version',
+        value: new Date().getTime()
+    }))
+    .pipe(gulp.dest('./'))
+});
 
-let moveAllFile = (e) => {
+gulp.task('move-public', ['clean', 'version'], function(e){
+
     gulp.src('api/**/*.*').pipe(gulp.dest(destinations['public'] + '/api'));
     gulp.src('app/**/' + source.js.html).pipe(gulp.dest(destinations['public'] + '/app'));
 
@@ -132,58 +120,26 @@ let moveAllFile = (e) => {
         ])
     .pipe(gulpHtmlVersion(version))
     .pipe(gulp.dest(destinations['public']));
-}
-// gulp.task('movePublic', gulp.series(
-//     clean,
-//     runVersion, 
-//     moveAllFile
-// ));
-// gulp.task('movePublic', ['clean', 'version'], function(e){
+});
 
-//     gulp.src('api/**/*.*').pipe(gulp.dest(destinations['public'] + '/api'));
-//     gulp.src('app/**/' + source.js.html).pipe(gulp.dest(destinations['public'] + '/app'));
-
-//     // 處理主要的js檔
-//     gulp.src('build/**/*.*')
-//         .pipe(ngAnnotate())
-//         .pipe(stripDebug())
-//         .pipe(uglify())
-//         .pipe(gulp.dest(destinations['public'] + '/build'));
-        
-//     gulp.src('sound/**/*.*').pipe(gulp.dest(destinations['public'] + '/sound'));
-//     gulp.src('styles/**/*.*').pipe(gulp.dest(destinations['public'] + '/styles'));
-
-//     return gulp.src([
-//             source.js.tpl,
-//             source.js.html
-//         ])
-//     .pipe(gulpHtmlVersion(version))
-//     .pipe(gulp.dest(destinations['public']));
-// });
-
-let watch = () => {
-    gulp.watch(source.js.src, gulp.series(
-        js, 
-        moveJsFile
-    ));
+gulp.task('watch', function(){
+    gulp.watch(source.js.src, ['m-js']);
     // gulp.watch(source.js.tpl, ['html']);
     gulp.watch([
             source.js.html,
             'app/**/' + source.js.html,
             'app/' + source.js.tpl
-        ], gulp.series(mHtml));
+        ], ['m-html']);
     gulpLivereload.listen();
-}
-gulp.task(watch);
+});
 
-let runConnect = () => {
+gulp.task('connect', function() {
     connect.server({
         port: 8888
     });
-}
-gulp.task(runConnect);
+});
 
-let vendor = (done) => {
+gulp.task('vendor', function(){
     _.forIn(scripts.chunks, function(chunkScripts, chunkName){
         var paths = [];
         chunkScripts.forEach(function(script){
@@ -192,7 +148,6 @@ let vendor = (done) => {
             if (!fs.existsSync(__dirname + '/' + scriptFileName)) {
 
                 throw console.error('Required path doesn\'t exist: ' + __dirname + '/' + scriptFileName, script)
-                
             }
             paths.push(scriptFileName);
         });
@@ -201,41 +156,21 @@ let vendor = (done) => {
             //.on('error', swallowError)
             .pipe(gulp.dest(destinations.js))
     })
-    done();
-}
-gulp.task(vendor);
 
-gulp.task('public', gulp.series(
-        clean,
-        runVersion, 
-        moveAllFile 
-    )
-)
-gulp.task('default', gulp.series(
-        vendor,
-        js,
-        mHtml,
-        // gulp.series(
-        //     js, 
-        //     moveJsFile
-        // ),
-        moveJsFile,
-        watch
-    )
-)
+});
 
-// gulp.task('prod', ['vendor', 'build']);
-// // gulp.task('dev', ['vendor', 'js', 'watch', 'connect']);
-// gulp.task('public', ['movePublic']);
-// gulp.task('dev', ['vendor', 'js', 'mHtml', 'mJs', 'watch']);
-// gulp.task('default', ['dev']);
+gulp.task('prod', ['vendor', 'build']);
+// gulp.task('dev', ['vendor', 'js', 'watch', 'connect']);
+gulp.task('public', ['move-public']);
+gulp.task('dev', ['vendor', 'js', 'm-html', 'm-js', 'watch']);
+gulp.task('default', ['dev']);
 
-let swallowError = (error) => {
+var swallowError = function(error){
     console.log(error.toString());
     this.emit('end')
 };
 
-let getTemplateStream = () => {
+var getTemplateStream = function () {
     return gulp.src(source.js.tpl)
         .pipe(templateCache({
             root: 'app/',

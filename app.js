@@ -129,4 +129,7 @@ app.use(function(err, req, res, next) {
 // server port 3000
 app.listen(setting.NodeJs.port, function() {
     return console.info("Express server listening on port " + (this.address().port) + " in " + process.env.NODE_ENV + " mode");
+}).on('error', function(err){
+    console.log('server error handler');
+    console.log(err);
 });

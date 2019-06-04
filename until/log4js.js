@@ -8,27 +8,52 @@
 const log4js = require('log4js');
 
 // log setting
-log4js.configure({
-    appenders: [
-        { 
-            type: 'console' //控制台输出
-        }, 
-        {
+// log4js.configure({
+//     appenders: [
+//         { 
+//             type: 'console' //控制台输出
+//         }, 
+//         {
+//             type: 'file', //文件输出
+//             filename: 'log/restful.log', 
+//             maxLogSize: 10*1024*1024, // = 10Mb
+//             backups: 10,
+//             category: 'restful' 
+//         }, 
+//         {
+//             type: 'file', //文件输出
+//             filename: 'log/toolbox.log', 
+//             maxLogSize: 10*1024*1024, // = 10Mb
+//             backups: 10,
+//             category: 'toolbox' 
+//         }
+//     ],
+//     replaceConsole: true
+// });
+
+log4js.configure({ 
+    appenders: {
+        out: { type: 'console' }, 
+        restful: { 
             type: 'file', //文件输出
             filename: 'log/restful.log', 
             maxLogSize: 10*1024*1024, // = 10Mb
             backups: 10,
-            category: 'restful' 
+            category: 'restful'
         }, 
-        {
+        toolbox: { 
             type: 'file', //文件输出
             filename: 'log/toolbox.log', 
             maxLogSize: 10*1024*1024, // = 10Mb
             backups: 10,
-            category: 'toolbox' 
+            category: 'toolbox'
         }
-    ],
-    replaceConsole: true
+    },
+    categories: {
+        default: { appenders: ['out', 'restful', 'toolbox'], level: 'info' },
+        // restful: { appenders: ['restful'], level: 'info'},
+        // toolbox: { appenders: ['toolbox'], level: 'info' }
+    }
 });
 // var logger4js = log4js.getLogger('normal');
 // logger4js.setLevel('INFO');
@@ -36,7 +61,7 @@ log4js.configure({
 
 exports.logger = function(name){
 	var logger = log4js.getLogger(name);
-	logger.setLevel('INFO');
+	// logger.setLevel('INFO');
 	return logger;
 }
 
