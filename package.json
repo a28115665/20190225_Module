@@ -24,7 +24,7 @@
     "gulp-ng-annotate": "^2.0.0",
     "gulp-strip-debug": "^2.0.0",
     "gulp-uglify": "^1.2.0",
-    "lodash": "^4.17.11"
+    "lodash": "^4.17.13"
   },
   "dependencies": {
     "archiver": "^3.0.0",
