@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "archiver": "^3.0.0",
-    "async": "^2.3.0",
+    "async": "^2.6.4",
     "compression": "^1.7.2",
     "connect-busboy": "0.0.2",
     "connect-redis": "^3.2.0",
