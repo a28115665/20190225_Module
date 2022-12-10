@@ -33,7 +33,7 @@
     "connect-busboy": "0.0.2",
     "connect-redis": "^3.2.0",
     "cookie-parser": "^1.4.4",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "express-session": "^1.16.1",
     "fs-extra": "^2.1.2",
     "log4js": "^4.3.1",
